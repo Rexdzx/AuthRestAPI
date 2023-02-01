@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostResource;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,6 +16,7 @@ class PostController extends Controller
      */
     public function index()
     {
+        return PostResource::collection(auth()->user()->post);
     }
 
     /**
@@ -38,6 +41,17 @@ class PostController extends Controller
             'title' => 'required',
             'content' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return $validator->errors();
+        }
+
+        $post = auth()->user()->post()->create($request->all());
+
+        return response()->json([
+            'message' => 'Berhasil Menambah Data',
+            'data' => new PostResource($post)
+        ], 201);
     }
 
     /**
@@ -71,7 +85,28 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $validator->errors();
+        }
+
+        $post = Post::findOrFail($id);
+
+        if (auth()->user()->id === $post->user_id) {
+            $post->update($request->all());
+            return response()->json([
+                'message' => 'Data Berhasil Diupdate',
+                'data' => $post,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Unauthorized'
+        ], 401);
     }
 
     /**
@@ -82,6 +117,18 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = Post::findOrFail($id);
+
+        if (auth()->user()->id === $post->user_id) {
+            $post->delete();
+
+            return response()->json([
+                'message' => 'Data Berhasil Dihapus',
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Unauthorized'
+        ], 401);
     }
 }
