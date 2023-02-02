@@ -29,3 +29,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::resource('posts', PostController::class);
 });
+
+Route::get('cetak', [PostController::class, 'cetak']);
+Route::get('allposts', [PostController::class, 'allposts']);
