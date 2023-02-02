@@ -6,6 +6,8 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use PDF;
 
 class PostController extends Controller
 {
@@ -24,9 +26,20 @@ class PostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function view()
     {
-        //
+
+        // $posts = Http::get('https://2ce4-36-90-23-226.ap.ngrok.io/api/allposts');
+
+        // return view('export', [
+        //     'posts' => $posts['data'],
+        // ]);
+
+        $posts = Post::all();
+
+        return view('export', [
+            'posts' => $posts,
+        ]);
     }
 
     /**
@@ -52,6 +65,15 @@ class PostController extends Controller
             'message' => 'Berhasil Menambah Data',
             'data' => new PostResource($post)
         ], 201);
+    }
+
+    public function cetak()
+    {
+
+        $posts = Post::all();
+
+        $pdf = PDF::loadView('export', ['posts' => $posts]);
+        return $pdf->download('tes.pdf');
     }
 
     /**
@@ -130,5 +152,14 @@ class PostController extends Controller
         return response()->json([
             'message' => 'Unauthorized'
         ], 401);
+    }
+
+    public function allposts()
+    {
+        $posts = Post::all();
+
+        return response()->json([
+            'data' => $posts,
+        ], 200);
     }
 }
