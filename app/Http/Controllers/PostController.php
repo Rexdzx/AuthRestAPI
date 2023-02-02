@@ -72,8 +72,8 @@ class PostController extends Controller
 
         $posts = Post::all();
 
-        $pdf = PDF::loadView('export', ['posts' => $posts]);
-        return $pdf->download('tes.pdf');
+        $pdf = PDF::loadView('topdf', ['posts' => $posts]);
+        return $pdf->download('data-posts.pdf');
     }
 
     /**

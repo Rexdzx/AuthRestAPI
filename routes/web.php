@@ -18,3 +18,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('export', [PostController::class, 'view']);
+Route::get('export/pdf', [PostController::class, 'cetak']);
