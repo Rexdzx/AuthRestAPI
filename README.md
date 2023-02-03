@@ -15,3 +15,11 @@
 - UI
 
  ![Preview 1](/public/img/preview1.png)
+
+ - Postman
+
+ ![Postman](/public/img/preview2.png)
+
+ - Result
+
+ ![Result](/public/img/result.png)
