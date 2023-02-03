@@ -11,31 +11,30 @@
 
 <body>
     <div class="container my-5">
-        <table class="table">
-            <a href="{{ url('export/pdf') }}" class="btn btn-primary" target="_blank">CETAK PDF</a>
-            <table class='table table-bordered'>
-                <thead>
+        <a href="{{ url('export/pdf') }}" class="btn btn-primary" target="_blank">CETAK PDF</a>
+        <table class='table table-bordered my-5'>
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Judul</th>
+                    <th scope="col">Content</th>
+                    <th scope="col">Author</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $i = 1;
+                @endphp
+                @foreach ($posts as $post)
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Judul</th>
-                        <th scope="col">Content</th>
-                        <th scope="col">Author</th>
+                        <td scope="row">{{ $i++ }}</td>
+                        <td>{{ $post->title }}</td>
+                        <td>{{ $post->content }}</td>
+                        <td>{{ $post->user->name }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $i = 1;
-                    @endphp
-                    @foreach ($posts as $post)
-                        <tr>
-                            <th scope="row">{{ $i++ }}</th>
-                            <td>{{ $post->title }}</td>
-                            <td>{{ $post->content }}</td>
-                            <td>{{ $post->user->name }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 </body>
 
