@@ -13,4 +13,4 @@
 ## Previews
 
 - UI
-![ui][./public/img/preview1.png]
+![ui][public/img/preview1.png]
