@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -19,11 +21,14 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'required',
+            'password' => 'required|confirmed',
         ]);
 
+        // if ($validator->fails()) {
+        //     return response()->json($validator->errors());
+        // }
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return back()->with('errors', 'Password Tidak Sama');
         }
 
         $user = User::create([
@@ -32,10 +37,11 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json([
-            'message' => 'Register Success',
-            'data' => $user,
-        ], 201);
+        // return response()->json([
+        //     'message' => 'Register Success',
+        //     'data' => $user,
+        // ], 201);
+        return redirect()->route('login')->with('success', 'Register Success');
     }
 
     public function login(Request $request)
@@ -47,31 +53,43 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return response($validator->errors());
-        }
+        // if ($validator->fails()) {
+        //     return response($validator->errors());
+        // }
+
         // ambil data user
         $user = User::where('email', $request->email)->firstOrFail();
 
-        if (!$token = Auth::guard('api')->attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Email atau Password Salah'
-            ], 401);
-        }
+        // if (!$token = Auth::guard('api')->attempt($request->only('email', 'password'))) {
+        //     return response()->json([
+        //         'message' => 'Email atau Password Salah'
+        //     ], 401);
+        // }
 
-        return response()->json([
-            'message' => 'Berhasil Login',
-            'data' => $user,
-            'token' => $token,
-        ], 201);
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $request->session()->regenerate();
+            return redirect()->intended('/');
+        }
+        return back()->with('errors', 'Email Atau Password Salah');
+
+        // return response()->json([
+        //     'message' => 'Berhasil Login',
+        //     'data' => $user,
+        //     'token' => $token,
+        // ], 201);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        JWTAuth::invalidate(JWTAuth::getToken());
+        // JWTAuth::invalidate(JWTAuth::getToken());
 
-        return response()->json([
-            'message' => 'Berhasil Logout'
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Berhasil Logout'
+        // ], 200);
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 }
