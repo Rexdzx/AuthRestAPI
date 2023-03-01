@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\Controller;
+use PDF;
 
-class PostsController extends Controller
+class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,24 +19,23 @@ class PostsController extends Controller
      */
     public function index()
     {
-        return view('crud.create');
+        return PostResource::collection(auth()->user()->post);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function view()
-    {
+    // /**
+    //  * Show the form for creating a new resource.
+    //  *
+    //  * @return \Illuminate\Http\Response
+    //  */
+    // public function view()
+    // {
 
+    //     $posts = Post::all();
 
-        $posts = Post::all();
-
-        return view('export', [
-            'posts' => $posts,
-        ]);
-    }
+    //     return view('export', [
+    //         'posts' => $posts,
+    //     ]);
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -44,20 +46,30 @@ class PostsController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
+            'title' => 'required',
             'content' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return back()->with('errors', 'Data Tidak Valid');
+            return $validator->errors();
         }
 
-        auth()->user()->post()->create($request->all());
+        $post = auth()->user()->post()->create($request->all());
 
-
-        return back()->with('success', 'Data Berhasil Dibuat');
+        return response()->json([
+            'message' => 'Berhasil Menambah Data',
+            'data' => new PostResource($post)
+        ], 201);
     }
 
+    public function cetak()
+    {
+
+        $posts = Post::all();
+
+        $pdf = PDF::loadView('topdf', ['posts' => $posts]);
+        return $pdf->download('data-posts.pdf');
+    }
 
     /**
      * Display the specified resource.

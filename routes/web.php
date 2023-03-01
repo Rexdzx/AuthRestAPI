@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\PostsController;
-use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\ViewPostController;
+use App\Http\Controllers\ViewAuthController;
 use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
@@ -19,27 +18,28 @@ use Illuminate\Http\Request;
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
 // export data
-Route::get('export', [PostController::class, 'view'])->name('export');
-Route::get('export/pdf', [PostController::class, 'cetak']);
+Route::get('export', [ViewPostController::class, 'view'])->name('export');
+Route::get('export/pdf', [ViewPostController::class, 'cetak']);
 
-
+// register
 Route::get('register', function () {
     return view('auth.register');
 });
-Route::post('register', [AuthController::class, 'register'])->name('register');
+Route::post('register', [ViewAuthController::class, 'register'])->name('register');
 
-
+//login
 Route::get('login', function () {
     return view('auth.login');
 });
-Route::post('login', [AuthController::class, 'login'])->name('login');
+Route::post('login', [ViewAuthController::class, 'login'])->name('login');
 
+//logout
+Route::get('logout', [ViewAuthController::class, 'logout'])->name('logout');
 
-Route::get('logout', [AuthController::class, 'logout'])->name('logout');
-
-
+//create 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('create', [PostsController::class, 'index'])->name('create');
-    Route::post('create', [PostsController::class, 'store'])->name('store');
+    Route::get('create', [ViewPostController::class, 'index'])->name('create');
+    Route::post('create', [ViewPostController::class, 'store'])->name('store');
 });
